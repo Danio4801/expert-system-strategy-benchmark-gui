@@ -1,0 +1,274 @@
+%% ============================================================
+%% EXPERT SYSTEM STRATEGY BENCHMARK - GUI FLOWCHART
+%% ============================================================
+%% Last update: 2026-01-21
+%% Cascade flow based on actual GUI implementation (src/app.py)
+%% ============================================================
+
+flowchart TD
+    %% ============================================================
+    %% START
+    %% ============================================================
+
+    Start([START]) --> Step0
+
+    %% ============================================================
+    %% STEP 0: GLOBAL CONFIGURATION
+    %% ============================================================
+
+    Step0["STEP 0: 
+    GLOBAL CONFIGURATION"]
+    Step0 --> Config0["Random Seed (default: 26)<br/>"]
+    Config0 --> Step1
+
+    %% ============================================================
+    %% STEP 1: DATA SOURCE SELECTION
+    %% ============================================================
+
+    Step1["STEP 1:
+    DATA SOURCE SELECTION"]
+    Step1 --> DataSource{Data source?}
+
+    DataSource -->|"File stored locally"| LocalFile["File Picker<br/>Choose .csv/.txt from drive"]
+    DataSource -->|"Firebase"| Firebase["Firebase Cloud Storage<br/>User file stored in Cloud"]
+    DataSource -->|"Recently used"| RecentFiles["Recent Files<br/>Recently used files"]
+    DataSource -->|"Build in"| BuiltIn["Built-in Datasets<br/>Example: mushroom.csv"]
+
+    LocalFile --> FileValidation
+    Firebase --> FileValidation
+    RecentFiles --> FileValidation
+    BuiltIn --> FileValidation
+
+    %% ============================================================
+    %% FILE VALIDATION
+    %% ============================================================
+
+    FileValidation{{"File validation"}}
+    FileValidation -->|"Error"| FileError["Error code with provided explanation"]
+    FileError --> Step1
+
+    FileValidation -->|"OK"| Step2
+
+    %% ============================================================
+    %% STEP 2: CSV CONFIGURATION
+    %% ============================================================
+
+    Step2["Step 2:  CSV Config"]
+    Step2 --> CSVConfig["Separators,<br/>Headers,<br/>Decision column"]
+
+    CSVConfig --> CSVValidation{{"CSV Validation"}}
+
+    CSVValidation -->|"Error"| CSVError["CSV Error: 
+    Error code with provided explanation"]
+    CSVError --> Step2
+
+    CSVValidation -->|"OK"| Step3
+
+    %% ============================================================
+    %% STEP 3: IMPUTATION
+    %% ============================================================
+
+    Step3["Step 3: IMPUTATION"]
+    Step3 --> MissingCheck{Missing values?}
+
+    MissingCheck -->|"No"| SkipImputation["Skip imputation"]
+    MissingCheck -->|"Yes"| ImputeMethod{Imputation method?}
+
+    ImputeMethod -->|"Remove Rows"| RemoveRows["Remove rows that have missing values"]
+    ImputeMethod -->|"Smart Fill"| SmartFill["Smart Imputation<br/>• Numeric: mean or median per class<br/>• Categorical: mode per class"]
+
+    SkipImputation --> Step4
+    RemoveRows --> ImputeValidation
+    SmartFill --> ImputeValidation
+
+    ImputeValidation{{"Imputation validation"}}
+    ImputeValidation -->|"Not enough data left
+    (after deleting rows)"| ImputeError["Error"]
+    ImputeError --> Step3
+    ImputeValidation -->|"Enough data"| Step4
+
+    %% ============================================================
+    %% STEP 4: DISCRETIZATION METHOD
+    %% ============================================================
+
+    Step4["Step 4: Discretization"]
+    Step4 --> DiscMethod{Discretization method?}
+
+    DiscMethod -->|"Equal Width"| EqualWidth["Equal Width<br/>(max-min) / n_bins"]
+    DiscMethod -->|"Equal Frequency"| EqualFreq["Equal Frequency<br/>Equal number of data bins"]
+    DiscMethod -->|"K-Means"| KMeans["K-Means Clustering<br/>Centroids as boundaries"]
+    DiscMethod -->|"No"| SkipDisc["Skip <br/>"]
+
+    EqualWidth --> BinChoice
+    EqualFreq --> BinChoice
+    KMeans --> BinChoice
+    SkipDisc --> Step6
+
+    BinChoice{Number of bins?}
+    BinChoice -->|"Auto"| AutoBins["Smart Binning Advisor<br/>• Sturges: 1 + log₂(n)<br/>• Scott: 3.5σ/n^⅓<br/>• Freedman-Diaconis: 2×IQR/n^⅓<br/>Decision made based on rules R1-R13"]
+    BinChoice -->|"Manual"| Step5
+
+    AutoBins --> Step6
+
+    %% ============================================================
+    %% STEP 5: DISCRETIZATION DETAILS (OPTIONAL)
+    %% ============================================================
+
+    Step5["Details setup"]
+    Step5 --> DiscDetails["Number of bins<br/>Columns to discretize"]
+    DiscDetails --> Step6
+
+    %% ============================================================
+    %% STEP 6: RULE GENERATION
+    %% ============================================================
+
+    Step6["Rule generation"]
+    Step6 --> RuleMethod{Rule generation method?}
+
+    RuleMethod -->|"Naive"| Naive["Naive<br/>1 row = 1 rule"]
+    RuleMethod -->|"Decision Tree"| Tree[" Decision Tree<br/>• Max Depth (1-10)<br/>• Min Samples Leaf (2-100)"]
+    RuleMethod -->|"Random Forest"| Forest["Random Forest<br/>• Trees number<br/>• Min/Max Depth<br/>• Min Samples Split"]
+
+    Naive --> RuleGeneration
+    Tree --> RuleGeneration
+    Forest --> RuleGeneration
+
+    RuleGeneration{{"Rule generation"}}
+    RuleGeneration -->|"Error"| RuleError["Rule generation error<br/>"]
+    RuleError --> Step6
+    RuleGeneration -->|"Generated N rules"| Step7
+
+    %% ============================================================
+    %% STEP 7: INFERENCE ALGORITHM
+    %% ============================================================
+
+    Step7["Step 7: Inference algorithm"]
+    Step7 --> AlgoChoice{Algorithm?}
+
+    AlgoChoice -->|"Forward Chaining"| FC["Forward Chaining<br/>(Data‑driven: 
+    facts → conclusions)"]
+    AlgoChoice -->|"Backward Chaining"| BC["Backward Chaining<br/>(Goal‑driven: 
+    hypothesis → facts)"]
+
+    FC --> FCOptions["Forward Chaining Settings:<br/>(on/off)<br/>- Clustering (N clusters: 2-10)<br/>- Greedy<br/>-Goal driven
+    (terminates when choosen goal is reached)"]
+    BC --> BCOptions["Backward Chaining:<br/>Goal (required)<br/>Goal attribute<br/>Goal value"]
+
+    FCOptions --> AlgoValidation
+    BCOptions --> AlgoValidation
+
+    AlgoValidation{{"Algorithm validation"}}
+    AlgoValidation -->|"BC error"| AlgoError["Backward Chaining<br/>requries defined goal"]
+    AlgoError --> Step7
+    AlgoValidation -->|"OK"| Step8
+
+    %% ============================================================
+    %% STEP 8: CONFLICT RESOLUTION STRATEGY
+    %% ============================================================
+
+    Step8["Step 8:
+    Conflict resolution strategy"]
+    Step8 --> StrategyChoice["Choose strategy (multi-select):"]
+
+    StrategyChoice --> Strategies["Random<br/>First(FIFO)<br/>Recency<br/>Specificity"]
+
+    Strategies --> StratValidation{{"Min. 1 strategy"}}
+    StratValidation -->|"Choosen strategies < 1"| StratError["Error<br/>"]
+    StratError --> Step8
+    StratValidation -->|"OK"| Step9
+
+    %% ============================================================
+    %% STEP 9: RUN EXPERIMENT
+    %% ============================================================
+
+    Step9["Step 9: Run experiment"]
+Step9 --> RunConfig["Configuration overview:<br/><br/>- Dataset + decision column<br/>- Discretization + number of bins<br/>- Rule generation method<br/>- Algorithm + optimizations<br/>- Strategy(ies)"]
+
+RunConfig --> BenchmarkConfig["BenchmarkConfig:<br/>
+%Knowledge:  value(s) list, 
+example: 10, 25, 50, 70<br/>
+Number of repetitions: N<br/>Total: % × strategies × N"]
+
+    BenchmarkConfig --> RunValidation{{"Parameter validation"}}
+RunValidation -->|"Error"| RunError[" Parameter error<br/>- Invalid % of knowledge<br/>- Invalid number of repetitions"]
+    RunError --> Step9
+
+RunValidation -->|"OK"| RunExperiment["Experiment start<br/>- Inference<br/>- Calculating metrics"]
+
+    %% ============================================================
+    %% RESULTS
+    %% ============================================================
+
+    RunExperiment --> Results["RESULTS"]
+
+
+
+    Results --> Analysis["Logs / summary:<br/> - Rules dump<br/>- Experiment traces<br/>- Results<br/>- Config log"]
+
+
+    Analysis --> End
+
+    End{Restart?}
+    End -->|"New experiment"| Step1
+    End -->|"No - Finish"| Finish([End])
+
+       %% ============================================================
+    %% STYLING
+    %% ============================================================
+
+    %% Start/End
+    style Start fill:#A5B4FC,stroke:#818CF8,stroke-width:3px,color:#fff
+    style Finish fill:#86EFAC,stroke:#4ADE80,stroke-width:3px,color:#fff
+
+    %% Main steps
+    style Step0 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step1 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step2 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step3 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step4 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step5 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step6 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step7 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step8 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+    style Step9 fill:#E2E8F0,stroke:#A5B4FC,stroke-width:2px,color:#1E293B
+
+    %% Data sources
+    style LocalFile fill:#93C5FD,stroke:#60A5FA,stroke-width:2px,color:#1E3A8A
+    style Firebase fill:#FCD34D,stroke:#FBBF24,stroke-width:2px,color:#78350F
+    style RecentFiles fill:#93C5FD,stroke:#60A5FA,stroke-width:2px,color:#1E3A8A
+    style BuiltIn fill:#A7F3D0,stroke:#6EE7B7,stroke-width:2px,color:#064E3B
+
+    %% Smart features
+    style SmartFill fill:#A7F3D0,stroke:#6EE7B7,stroke-width:2px,color:#064E3B
+    style AutoBins fill:#A7F3D0,stroke:#6EE7B7,stroke-width:2px,color:#064E3B
+
+    %% Algorithms
+    style FC fill:#93C5FD,stroke:#60A5FA,stroke-width:2px,color:#1E3A8A
+    style BC fill:#C4B5FD,stroke:#A78BFA,stroke-width:2px,color:#4C1D95
+
+    %% Rule generation
+    style Naive fill:#CBD5E1,stroke:#94A3B8,stroke-width:2px,color:#1E293B
+    style Tree fill:#A7F3D0,stroke:#6EE7B7,stroke-width:2px,color:#064E3B
+    style Forest fill:#A7F3D0,stroke:#6EE7B7,stroke-width:2px,color:#064E3B
+
+    %% Errors
+    style FileError fill:#FCA5A5,stroke:#F87171,stroke-width:2px,color:#7F1D1D
+    style CSVError fill:#FCA5A5,stroke:#F87171,stroke-width:2px,color:#7F1D1D
+    style ImputeError fill:#FCA5A5,stroke:#F87171,stroke-width:2px,color:#7F1D1D
+    style RuleError fill:#FCA5A5,stroke:#F87171,stroke-width:2px,color:#7F1D1D
+    style AlgoError fill:#FCA5A5,stroke:#F87171,stroke-width:2px,color:#7F1D1D
+    style StratError fill:#FCA5A5,stroke:#F87171,stroke-width:2px,color:#7F1D1D
+    style RunError fill:#FCA5A5,stroke:#F87171,stroke-width:2px,color:#7F1D1D
+
+    %% Results
+    style Results fill:#A7F3D0,stroke:#6EE7B7,stroke-width:3px,color:#064E3B
+    style Analysis fill:#A7F3D0,stroke:#6EE7B7,stroke-width:2px,color:#064E3B
+
+    %% Validation nodes
+    style FileValidation fill:#FDE68A,stroke:#FCD34D,stroke-width:2px,color:#78350F
+    style CSVValidation fill:#FDE68A,stroke:#FCD34D,stroke-width:2px,color:#78350F
+    style ImputeValidation fill:#FDE68A,stroke:#FCD34D,stroke-width:2px,color:#78350F
+    style RuleGeneration fill:#FDE68A,stroke:#FCD34D,stroke-width:2px,color:#78350F
+    style AlgoValidation fill:#FDE68A,stroke:#FCD34D,stroke-width:2px,color:#78350F
+    style StratValidation fill:#FDE68A,stroke:#FCD34D,stroke-width:2px,color:#78350F
+    style RunValidation fill:#FDE68A,stroke:#FCD34D,stroke-width:2px,color:#78350F
