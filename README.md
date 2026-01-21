@@ -4,14 +4,14 @@ GUI application for benchmarking rule-based expert systems with multiple inferen
 
 - **Smart Imputation** - automatically fills missing values using class-based statistics (mean/mode per decision class) to preserve data distribution
 - **Smart Binning Advisor** - expert system module that analyzes data distribution and recommends optimal discretization method and provides clear explanation 
-- **Multiple Discretization Methods** - Equal Width, Equal Frequency, K - Means and more
+- **Multiple Discretization Methods** - Equal Width, Equal Frequency and more
 
 > **Looking for the library version?**
 > 
 > Great, this project is  available as a pip library:
 > ['placeholder`](blank)
 >
-> Check it out, it's faster than GUI version due to lack of Flet dependencies and I spend more time building Lib, so it works faster, it is better thought out and was created after this version of the program, so I had more way more experience when writing it.
+> Check it out, it's faster than GUI version due to lack of Flet dependencies and I spend more time building Lib, so it works faster, it is better thought out and was created after this version of the program, so I had way more experience when writing it.
 
 ---
 
