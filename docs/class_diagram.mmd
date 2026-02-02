@@ -1,0 +1,177 @@
+classDiagram
+    %% ========================================
+    %% DIAGRAM KLAS - SYSTEM EKSPERTOWY
+    %% ========================================
+
+    %% --- PODSTAWOWE MODELE ---
+    class Fact {
+        +string attribute
+        +string value
+        +__init__(attribute, value)
+        +__hash__() int
+        +__eq__(other) bool
+        +__repr__() string
+    }
+
+    class Rule {
+        +int id
+        +List~Fact~ premises
+        +Fact conclusion
+        +__init__(id, premises, conclusion)
+        +is_satisfied_by(facts) bool
+        +__len__() int
+        +__repr__() string
+    }
+
+    class KnowledgeBase {
+        +List~Rule~ rules
+        +Set~Fact~ facts
+        +__init__(rules, facts)
+        +add_fact(fact) void
+        +add_facts(facts) void
+        +has_fact(fact) bool
+        +get_applicable_rules() List~Rule~
+    }
+
+    %% --- WYNIK WNIOSKOWANIA ---
+    class InferenceResult {
+        +bool success
+        +Set~Fact~ facts
+        +List~Fact~ new_facts
+        +List~Rule~ rules_fired
+        +int iterations
+        +float execution_time_ms
+        +int rules_evaluated
+        +int rules_activated
+        +int facts_count
+        +List~str~ trace
+    }
+
+    %% --- SILNIKI WNIOSKOWANIA ---
+
+    class ForwardChaining {
+        +ConflictResolutionStrategy strategy
+        +string run_id
+        +Logger logger
+        +__init__(strategy, run_id, logger)
+        +run(kb, goal) InferenceResult
+    }
+
+    class BackwardChaining {
+        +ConflictResolutionStrategy strategy
+        +string run_id
+        +Logger logger
+        +__init__(strategy, run_id, logger)
+        +run(kb, goal) InferenceResult
+        -_prove(goal, rules, facts, ...) bool
+        -_order_rules_by_strategy(rules, facts) List~Rule~
+    }
+
+    class ClusteredForwardChaining {
+        +List~RuleCluster~ clusters
+        +float centroid_match_threshold
+        +int clusters_checked
+        +int clusters_skipped
+        +int centroid_evaluations
+        +__init__(strategy, clusters, centroid_match_threshold)
+        +run(kb, goal) InferenceResult
+        -_get_centroid_match_ratio(centroid, facts) float
+        +get_clustering_stats() dict
+    }
+
+    %% --- KLASTERYZACJA ---
+    class RuleCluster {
+        +int cluster_id
+        +List~Rule~ rules
+        +Rule centroid
+        +int size
+    }
+
+    class RuleClusterer {
+        +int n_clusters
+        +string method
+        +string linkage
+        +int random_state
+        +string centroid_method
+        +float centroid_threshold
+        +List~RuleCluster~ clusters
+        +__init__(n_clusters, method, linkage, random_state, centroid_method, centroid_threshold)
+        +fit(rules) List~RuleCluster~
+        +get_cluster_for_rule(rule) RuleCluster
+        +get_statistics() dict
+        -_compute_similarity_matrix(rules) ndarray
+        -_rules_to_feature_vectors(rules) ndarray
+        -_compute_centroid(cluster_rules, cluster_id) Rule
+        -_compute_centroid_general(...) Rule
+        -_compute_centroid_specialized(...) Rule
+        -_compute_centroid_weighted(...) Rule
+    }
+
+    %% --- STRATEGIA ROZWIAZYWANIA KONFLIKTOW ---
+    class ConflictResolutionStrategy {
+        <<abstract>>
+        +select(conflict_set, facts)* Rule
+    }
+
+    class RandomStrategy {
+        +Random rng
+        +__init__(seed)
+        +select(conflict_set, facts) Rule
+    }
+
+    class FirstStrategy {
+        +select(conflict_set, facts) Rule
+    }
+
+    class SpecificityStrategy {
+        +select(conflict_set, facts) Rule
+    }
+
+    class RecencyStrategy {
+        +select(conflict_set, facts) Rule
+    }
+
+    %% ========================================
+    %% RELACJE
+    %% ========================================
+
+    %% Fact i Rule - agregacja
+    Rule "1" o-- "many" Fact : premises
+    Rule "1" o-- "1" Fact : conclusion
+
+    %% KnowledgeBase - agregacja
+    KnowledgeBase "1" o-- "many" Rule : zawiera
+    KnowledgeBase "1" o-- "many" Fact : zawiera
+
+    %% Silniki --> KnowledgeBase (zaleznosc)
+    ForwardChaining ..> KnowledgeBase : operates on
+    BackwardChaining ..> KnowledgeBase : operates on
+    ClusteredForwardChaining ..> KnowledgeBase : operates on
+
+    %% Silniki --> InferenceResult (zaleznosc)
+    ForwardChaining ..> InferenceResult : returns
+    BackwardChaining ..> InferenceResult : returns
+    ClusteredForwardChaining ..> InferenceResult : returns
+
+    %% InferenceResult - agregacja
+    InferenceResult "1" o-- "many" Rule : rules_fired
+    InferenceResult "1" o-- "many" Fact : facts, new_facts
+
+    %% Dziedziczenie silnikow wnioskowania
+    ForwardChaining <|-- ClusteredForwardChaining : extends
+
+    %% Strategie - asocjacja
+    ForwardChaining "1" --> "1" ConflictResolutionStrategy : uses
+    BackwardChaining "1" --> "1" ConflictResolutionStrategy : uses
+
+    %% Strategie - dziedziczenie
+    ConflictResolutionStrategy <|-- RandomStrategy : implements
+    ConflictResolutionStrategy <|-- FirstStrategy : implements
+    ConflictResolutionStrategy <|-- SpecificityStrategy : implements
+    ConflictResolutionStrategy <|-- RecencyStrategy : implements
+
+    %% Klasteryzacja
+    RuleClusterer "1" --> "many" RuleCluster : creates
+    RuleCluster "1" o-- "many" Rule : contains
+    RuleCluster "1" o-- "1" Rule : centroid
+    ClusteredForwardChaining "1" --> "many" RuleCluster : uses
