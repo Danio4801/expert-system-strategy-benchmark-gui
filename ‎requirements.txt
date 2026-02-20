@@ -1,4 +1,0 @@
-flet==0.21.2
-pandas>=2.0.0
-scikit-learn>=1.0.0
-matplotlib>=3.5.0
