@@ -63,7 +63,7 @@ or
 
 ```bash
 # Clone the repository
-git clone https://github.com/Danio4801/expert-system-strategy-benchmark.git
+git clone https://github.com/Danio4801/expert-system-strategy-benchmark-gui.git
 cd expert-system-strategy-benchmark
 
 # Install dependencies
@@ -84,7 +84,7 @@ python app.py
 ├── src/            # GUI (Flet)
 ├── data/           # Built-in datasets
 ├── tests/          # Unit tests
-└── docs/   # Documentation (!Temporarily avaialbe only in Polish)
+└── docs/   # Documentation
 ```
 
 ---
