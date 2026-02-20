@@ -11,8 +11,7 @@ GUI application for benchmarking rule-based expert systems with multiple inferen
 > Great, this project is  available as a pip library:
 > ['placeholder`](blank)
 > !Library will be publicly available in the early morning of 19 Feb 2026.
->
-> Check it out, it's faster than GUI version due to lack of Flet dependencies and I spend more time building Lib, so it works faster, it is better thought out and was created after this version of the program, so I had way more experience when writing it.
+
 
 ---
 
