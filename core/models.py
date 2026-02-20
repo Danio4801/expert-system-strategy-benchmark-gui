@@ -1,8 +1,8 @@
 """
-To jest moduł zawierający podstawowe modele danych systemu ekspertowego zwanego dalej SE.
+Moduł zawierający podstawowe modele danych systemu ekspertowego.
 
 Klasy:
-    - Fact: reprezentuje pojedynczy fakt (para atrybut-wartość), jest to atomowa jednostka informacji
+    - Fact: reprezentuje pojedynczy fakt (para atrybut-wartość)
     - Rule: reprezentuje regułę IF-THEN
     - KnowledgeBase: przechowuje reguły i fakty
 """
@@ -12,29 +12,26 @@ from typing import List, Set, Iterable
 
 class Fact:
     """
-    Klasa reprezentuje pojedynczy fakt w systemie ekspertowym.
+    Reprezentuje pojedynczy fakt w systemie ekspertowym.
 
-    Fakt to para (atrybut, wartość), np. ("goraczka", "tak") albo ("auto", "szybkie")
-    Klasa jest niemodyfikowalna (w sensie logicznym) i haszowalna,
-    co pozwala na używanie jej w zbiorach (set).
+    Fakt to para atrybut-wartość, np. Fact("kolor", "czerwony")
+    oznacza "kolor jest czerwony".
 
     Attributes:
         attribute (str): Nazwa atrybutu
         value (str): Wartość atrybutu
 
     Example:
-        fact = Fact("temperatura", "wysoka")
-
-        fact.attribute
+        >>> fact = Fact("temperatura", "wysoka")
+        >>> fact.attribute
         'temperatura'
-
-        fact.value
+        >>> fact.value
         'wysoka'
     """
 
     def __init__(self, attribute: str, value: str):
         """
-        Klasa tworzy nowy fakt.
+        Tworzy nowy fakt.
 
         Args:
             attribute: Nazwa atrybutu (nie może być pusta)
@@ -53,7 +50,8 @@ class Fact:
 
     def __eq__(self, other):
         """
-        Funkcja sprawdza czy dwa fakty są równe.
+        Sprawdza równość dwóch faktów.
+
         Fakty są równe jeśli mają ten sam atrybut i wartość.
         """
         if not isinstance(other, Fact):
@@ -62,31 +60,30 @@ class Fact:
 
     def __hash__(self):
         """
-        Funkcja zwraca hash faktu (który jest nam potrzebny do przechowywania w zbiorze).
+        Zwraca hash faktu (potrzebne do przechowywania w zbiorze).
         """
         return hash((self.attribute, self.value))
 
     def __repr__(self):
         """
-        Funkcja zwraca reprezentację tekstową faktu.
+        Zwraca czytelną reprezentację tekstową faktu.
         """
         return f"Fact({self.attribute}={self.value})"
 
 
 class Rule:
     """
-    Klasa reprezentuje regułę IF-THEN w systemie ekspertowym.
+    Reprezentuje regułę IF-THEN w systemie ekspertowym.
 
     Reguła składa się z:
     - przesłanek (premises): lista faktów które muszą być spełnione
     - konkluzji (conclusion): fakt który zostanie dodany gdy przesłanki spełnione
 
     Example:
-        premises = [Fact("gorączka", "tak"), Fact("drapiący kaszel", "tak")]
-        conclusion = Fact("diagnoza", "grypa")
-
-        rule = Rule(id=1, premises=premises, conclusion=conclusion)
-        len(rule)  # liczba przesłanek
+        >>> premises = [Fact("gorączka", "tak"), Fact("kaszel", "tak")]
+        >>> conclusion = Fact("diagnoza", "grypa")
+        >>> rule = Rule(id=1, premises=premises, conclusion=conclusion)
+        >>> len(rule)  # liczba przesłanek
         2
     """
 
@@ -149,9 +146,9 @@ class KnowledgeBase:
         facts (Set[Fact]): Zbiór znanych faktów
 
     Example:
-            kb = KnowledgeBase()
-            kb.add_fact(Fact("ton", "niski"))
-            kb.has_fact(Fact("ton", "niski"))
+        >>> kb = KnowledgeBase()
+        >>> kb.add_fact(Fact("kolor", "czerwony"))
+        >>> kb.has_fact(Fact("kolor", "czerwony"))
         True
     """
 

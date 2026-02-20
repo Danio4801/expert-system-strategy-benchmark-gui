@@ -1,16 +1,14 @@
 """
-To jest moduł zawierający strategie rozwiązywania konfliktów (Conflict Resolution Strategies).
+Moduł zawierający strategie rozwiązywania konfliktów (conflict resolution).
 
-Gdy wiele reguł może być aktywowanych, inaczej mówiąć gdy moduł a dokładniej silnik wnioskowania napotka "Conflict set", moduł pozwala na dynamiczny dobór algorytmu.
-wyboru reguły, gdy silnik wnioskowania napotka "Conflict Set" (wiele pasujących reguł).
+Gdy wiele reguł może być aktywowanych, strategia wybiera która zostanie wykonana.
 
 Klasy:
     - ConflictResolutionStrategy: abstrakcyjna klasa bazowa
-
     - RandomStrategy: losowy wybór
     - FirstStrategy: FIFO - pierwsza reguła
     - SpecificityStrategy: reguła z największą liczbą przesłanek
-    - RecencyStrategy: reguła używająca najświeższych faktów
+    - RecencyStrategy: reguła używająca najnowszych faktów
 """
 
 from abc import ABC, abstractmethod
@@ -50,12 +48,11 @@ class RandomStrategy(ConflictResolutionStrategy):
     Strategia wyboru losowego.
 
     Wybiera losową regułę z conflict set.
-    W celu osiągniecia powtarzalności eksperymetnów a tym samym wartości naukowej pozwala na przyjęcia ziarna, co zapewnia deterministyczność wyników,
-    a tym samym powtarzalnośc eksperymentów.
+    Może przyjąć seed dla deterministycznych wyników (powtarzalność eksperymentów).
 
     Example:
-        strategy = RandomStrategy(seed=26)  # powtarzalne wyniki
-        rule = strategy.select(conflict_set, facts)
+        >>> strategy = RandomStrategy(seed=42)  # powtarzalne wyniki
+        >>> rule = strategy.select(conflict_set, facts)
     """
 
     def __init__(self, seed: Optional[int] = None):
@@ -63,9 +60,9 @@ class RandomStrategy(ConflictResolutionStrategy):
         Tworzy strategię losową.
 
         Args:
-            seed: Opcjonalne ziarno dla generatora liczb losowych.
+            seed: Opcjonalny seed dla generatora liczb losowych.
                   Jeśli None, używa globalnego random (niepowtarzalne).
-                  Jeśli ziarno zostało podane, wyniki są deterministyczne.
+                  Jeśli podany, wyniki są deterministyczne (powtarzalne).
         """
         if seed is not None:
             self.rng = random.Random(seed)
@@ -88,12 +85,13 @@ class RandomStrategy(ConflictResolutionStrategy):
 
 class FirstStrategy(ConflictResolutionStrategy):
     """
-    FIFO
+    Strategia FIFO (First In First Out).
+
     Zawsze wybiera pierwszą regułę z listy (index 0).
 
     Example:
-        strategy = FirstStrategy()
-        rule = strategy.select(conflict_set, facts)
+        >>> strategy = FirstStrategy()
+        >>> rule = strategy.select(conflict_set, facts)
     """
 
     def select(self, conflict_set: List[Rule], facts: Set[Fact]) -> Rule:
@@ -112,11 +110,14 @@ class FirstStrategy(ConflictResolutionStrategy):
 
 class SpecificityStrategy(ConflictResolutionStrategy):
     """
-    Wybiera regułę z największą liczbą przesłanek a przy remisie wybiera pierwszą z reguł które miały najwyższy wynik.
+    Strategia specyficzności.
+
+    Wybiera regułę z największą liczbą przesłanek.
+    Przy remisie wybiera pierwszą z najdłuższych.
 
     Example:
-        strategy = SpecificityStrategy()
-        rule = strategy.select(conflict_set, facts)
+        >>> strategy = SpecificityStrategy()
+        >>> rule = strategy.select(conflict_set, facts)
     """
 
     def select(self, conflict_set: List[Rule], facts: Set[Fact]) -> Rule:
@@ -135,7 +136,7 @@ class SpecificityStrategy(ConflictResolutionStrategy):
 
 class RecencyStrategy(ConflictResolutionStrategy):
     """
-    Strategia świeżości
+    Strategia recencji (nowości) - używa Logical Clock.
 
     Wybiera regułę która używa najnowszych faktów.
     Dla każdej reguły oblicza maksymalną recency spośród jej przesłanek,
@@ -148,9 +149,9 @@ class RecencyStrategy(ConflictResolutionStrategy):
     - Wyższy clock_id = nowszy fakt
 
     Example:
-        strategy = RecencyStrategy()
-        facts_with_recency = {Fact("a", "1"): 0, Fact("b", "2"): 5}
-        rule = strategy.select(conflict_set, facts_with_recency)
+        >>> strategy = RecencyStrategy()
+        >>> facts_with_recency = {Fact("a", "1"): 0, Fact("b", "2"): 5}
+        >>> rule = strategy.select(conflict_set, facts_with_recency)
     """
 
     def select(self, conflict_set: List[Rule], facts: Dict[Fact, int]) -> Rule:
@@ -169,15 +170,3 @@ class RecencyStrategy(ConflictResolutionStrategy):
             return max(facts[premise] for premise in rule.premises)
 
         return max(conflict_set, key=get_max_recency)
-
-
-"""
-Dodatkowe wyjaśnienie:
-Wszystkie klasy dziedziczą po ConflictResolutionStrategy. Klasa bazowa definiuje metodę select w sposób:
-def select(self, conflict_set: List[Rule], facts) -> Rule:
-
-Nie możemy usunąć argumentu facts np. w RandomStrategy ponieważ gdybyśmy usunęli argument facts, silnik wnioskowania wyrzuciłby błąd.
-
-Dlaczego nie patrzymy na fakty np. w Random Strategy?
-Ponieważ strategia ocenia budowę reguł; ze zbioru aktualnych faktów korzystamy tylko wtedy, gdy kryterium wyboru zależy od cech tych faktów a nie od samej treści reguły.
-"""
