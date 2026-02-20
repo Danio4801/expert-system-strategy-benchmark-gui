@@ -32,4 +32,4 @@ jobs:
       run: |
         pytest tests/ -v --ignore=tests/test_auth_integration.py --ignore=tests/test_firebase.py -k "not firebase"
       env:
-        PYTHONPATH: ${{ github.workspace }}
+        PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src

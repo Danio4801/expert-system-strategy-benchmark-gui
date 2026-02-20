@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# PyInstaller
+*.spec
+*.manifest
+
+# App runtime state (user-specific, not for repo)
+src/local_files.json
+src/app_state.json
+src/Firebase/
+
+# Experiment results (generated at runtime)
+results/
+src/results/
+*.log
+
+# Flet
+.flet/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
