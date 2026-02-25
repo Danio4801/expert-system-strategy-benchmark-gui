@@ -11,7 +11,7 @@ TRANSLATIONS = {
         'nav_results': 'Wyniki',
         'nav_settings': 'Ustawienia',
         'app_title': 'System Ekspertowy (SE)',
-        'app_subtitle': 'Silnik Wnioskowania + Warstwa Sieciowa',
+        'app_subtitle': 'Silnik Wnioskowania\nWarstwa sieciowa wyłączona',
         'user_name': 'Daniel Nowak',
         'user_project': 'SE - Projekt',
         'greeting_morning': 'Dzień dobry!',

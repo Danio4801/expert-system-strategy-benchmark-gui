@@ -107,8 +107,8 @@ class AppColors:
     BG_ELEVATED = "#334155"
 
     TEXT_PRIMARY = "#F8FAFC"
-    TEXT_SECONDARY = "#94A3B8"
-    TEXT_MUTED = "#64748B"
+    TEXT_SECONDARY = "#E2E8F0"
+    TEXT_MUTED = "#CBD5E1"
 
     BORDER = "#475569"
 
@@ -6201,33 +6201,19 @@ class KnowledgeBaseView(ft.UserControl):
         self.firebase_files = []
 
         self.assets_files = [
-            {
-                "name": "Wine",
-                "location": lang.t('kb_location_assets'),
-                "size": "11 KB",
-                "ext": ".csv",
-                "attrs": "13",
-                "rows": "178",
-                "date_added": "-"
-            },
-            {
-                "name": "Mushroom",
-                "location": lang.t('kb_location_assets'),
-                "size": "365 KB",
-                "ext": ".csv",
-                "attrs": "22",
-                "rows": "8124",
-                "date_added": "-"
-            },
-            {
-                "name": "Iris",
-                "location": lang.t('kb_location_assets'),
-                "size": "4 KB",
-                "ext": ".csv",
-                "attrs": "4",
-                "rows": "150",
-                "date_added": "-"
-            },
+            {"name": "AdultIncome", "location": lang.t('kb_location_assets'), "size": "3.8 MB", "ext": ".csv", "attrs": "15", "rows": "32562", "date_added": "-"},
+            {"name": "BreastCancerWisconsin", "location": lang.t('kb_location_assets'), "size": "16 KB", "ext": ".csv", "attrs": "10", "rows": "700", "date_added": "-"},
+            {"name": "CarEvaluation", "location": lang.t('kb_location_assets'), "size": "51 KB", "ext": ".csv", "attrs": "7", "rows": "1729", "date_added": "-"},
+            {"name": "CreditApproval", "location": lang.t('kb_location_assets'), "size": "32 KB", "ext": ".csv", "attrs": "16", "rows": "690", "date_added": "-"},
+            {"name": "Ecoli", "location": lang.t('kb_location_assets'), "size": "16 KB", "ext": ".csv", "attrs": "9", "rows": "337", "date_added": "-"},
+            {"name": "GlassIdentification", "location": lang.t('kb_location_assets'), "size": "12 KB", "ext": ".csv", "attrs": "11", "rows": "215", "date_added": "-"},
+            {"name": "HeartDisease", "location": lang.t('kb_location_assets'), "size": "18 KB", "ext": ".csv", "attrs": "14", "rows": "303", "date_added": "-"},
+            {"name": "Iris", "location": lang.t('kb_location_assets'), "size": "4.5 KB", "ext": ".csv", "attrs": "5", "rows": "151", "date_added": "-"},
+            {"name": "Mushroom", "location": lang.t('kb_location_assets'), "size": "365 KB", "ext": ".csv", "attrs": "23", "rows": "8124", "date_added": "-"},
+            {"name": "PimaIndiansDiabetes", "location": lang.t('kb_location_assets'), "size": "23 KB", "ext": ".csv", "attrs": "9", "rows": "768", "date_added": "-"},
+            {"name": "Titanic", "location": lang.t('kb_location_assets'), "size": "59 KB", "ext": ".csv", "attrs": "12", "rows": "891", "date_added": "-"},
+            {"name": "Wine", "location": lang.t('kb_location_assets'), "size": "11 KB", "ext": ".csv", "attrs": "14", "rows": "179", "date_added": "-"},
+            {"name": "Zoo", "location": lang.t('kb_location_assets'), "size": "4.2 KB", "ext": ".csv", "attrs": "18", "rows": "102", "date_added": "-"},
         ]
 
 
@@ -7717,6 +7703,14 @@ def main(page: ft.Page):
     page.window_height = 900
     page.window_min_width = 1200
     page.window_min_height = 700
+    page.theme = ft.Theme(
+        color_scheme=ft.ColorScheme(
+            on_surface=AppColors.TEXT_PRIMARY,
+            on_surface_variant=AppColors.TEXT_SECONDARY,
+        ),
+    )
+    page.dark_theme = page.theme
+    page.theme_mode = ft.ThemeMode.DARK
 
 
 
